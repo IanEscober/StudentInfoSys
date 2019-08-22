@@ -9,15 +9,18 @@
     using System.Threading.Tasks;
     using Microsoft.IdentityModel.Tokens;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Interfaces.Logging;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using StudentInfoSys.Domain.Interfaces.Services;
 
     public class StudentService : IStudentService
     {
+        private readonly IBaseLogger<StudentService> baseLogger;
         private readonly IStudentRepository studentRepository;
 
-        public StudentService(IStudentRepository studentRepository)
+        public StudentService(IStudentRepository studentRepository, IBaseLogger<StudentService> baseLogger)
         {
+            this.baseLogger = baseLogger;
             this.studentRepository = studentRepository;
         }
 
@@ -27,42 +30,76 @@
             var newUser = new User { Email = user.Email, Password = user.Password, Firstname = user.Firstname, Lastname = user.Lastname, Gender = user.Gender };
             var newStudent = new Student { User = newUser };
 
-            var result = await this.studentRepository.AddStudentAsync(newStudent);
-            return result;
+            try
+            {
+                var result = await this.studentRepository.AddStudentAsync(newStudent);
+                this.baseLogger.LogInfo($"Added {result.User.Firstname} to students");
+                return result;
+            }
+            catch
+            {
+                throw new Exception("Cannot add student");
+            } 
         }
 
         public async Task<Student> AuthenticateBasicAsync(string authHeader)
         {
-            var authHeaderValue = AuthenticationHeaderValue.Parse(authHeader);
-            var credentialBytes = Convert.FromBase64String(authHeaderValue.Parameter);
-            var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':');
-            var email = credentials[0];
-            var password = credentials[1];
+            var email = default(string);
+            var password = default(string);
+
+            try
+            {
+                var authHeaderValue = AuthenticationHeaderValue.Parse(authHeader);
+                var credentialBytes = Convert.FromBase64String(authHeaderValue.Parameter);
+                var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':');
+                email = credentials[0];
+                password = credentials[1];
+            }
+            catch
+            {
+                throw new Exception("Cannot parse header");
+            }
+            
 
             var student = await this.studentRepository
                 .GetStudentsAsync(s => s.User.Email == email && s.User.Password == password);
 
-            return student?.FirstOrDefault();
+            if (student.Any())
+            {
+                return student.First();
+            }
+            else
+            {
+                this.baseLogger.LogWarn("Student does not exist");
+                return null;
+            }
+            
         }
 
         public string GenerateToken(Student student, string key)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtKey = Encoding.ASCII.GetBytes(key);
-            var tokenDescriptor = new SecurityTokenDescriptor
+            try
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtKey = Encoding.ASCII.GetBytes(key);
+                var tokenDescriptor = new SecurityTokenDescriptor
                 {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
                     new Claim(ClaimTypes.Name, student.UserId.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(jwtKey), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(jwtKey), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return tokenHandler.WriteToken(token);
+                return tokenHandler.WriteToken(token);
+            }
+            catch
+            {
+                throw new Exception("Cannot generate token");
+            }
+            
         }
-
-
     }
 }

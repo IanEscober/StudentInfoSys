@@ -14,8 +14,14 @@
 
         public async Task<IReadOnlyCollection<Course>> GetCoursesAsync(Expression<Func<Course,bool>> query = null)
         {
-            var courses = await this.GetAsync(query);
-            return courses.ToList().AsReadOnly();    
+            if(query != null)
+            {
+                var filteredCourses = await this.GetAsync(query);
+                return filteredCourses.ToList().AsReadOnly();
+            }
+
+            var courses = await this.GetAsync();
+            return courses.ToList().AsReadOnly();   
         }
     }
 }

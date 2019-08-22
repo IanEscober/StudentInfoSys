@@ -5,6 +5,7 @@ namespace StudentInfoSys.Service.Tests
     using System.Threading.Tasks;
     using Moq;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Interfaces.Logging;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using Xunit;
 
@@ -15,11 +16,12 @@ namespace StudentInfoSys.Service.Tests
         {
             var expectedUser = new User { UserId = 1 };
             var expectedStudent = new Student { User = expectedUser };
+            var mockLogger = new Mock<IBaseLogger<StudentService>>();
             var mockRepository = new Mock<IStudentRepository>();
             mockRepository.Setup(repo => repo.AddStudentAsync(It.IsAny<Student>()))
                 .ReturnsAsync(expectedStudent)
                 .Verifiable();
-            var service = new StudentService(mockRepository.Object);
+            var service = new StudentService(mockRepository.Object, mockLogger.Object);
 
             var result = await service.AddStudentAsync(expectedStudent);
 
@@ -32,11 +34,12 @@ namespace StudentInfoSys.Service.Tests
         {
             var header = "Basic dGVzdEB5cy5jb206dGVzdDEyMw==";
             var expectedStudent = new Student { StudentId = 1 };
+            var mockLogger = new Mock<IBaseLogger<StudentService>>();
             var mockRepository = new Mock<IStudentRepository>();
             mockRepository.Setup(repo => repo.GetStudentsAsync(It.IsAny<Expression<Func<Student, bool>>>()))
                 .ReturnsAsync(new Student[] { expectedStudent })
                 .Verifiable();
-            var service = new StudentService(mockRepository.Object);
+            var service = new StudentService(mockRepository.Object, mockLogger.Object);
 
             var result = await service.AuthenticateBasicAsync(header);
 
@@ -48,8 +51,9 @@ namespace StudentInfoSys.Service.Tests
         public void GenerateToken_WithStudentAndKey_ShouldReturnToken()
         {
             var key = "Test_JWT_Key_For_Testing";
+            var mockLogger = new Mock<IBaseLogger<StudentService>>();
             var mockRepository = new Mock<IStudentRepository>();
-            var service = new StudentService(mockRepository.Object);
+            var service = new StudentService(mockRepository.Object, mockLogger.Object);
 
             var result = service.GenerateToken(new Student { UserId = 1 }, key);
 

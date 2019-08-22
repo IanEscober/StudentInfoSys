@@ -13,9 +13,11 @@
     using Microsoft.IdentityModel.Tokens;
     using StudentInfoSys.Application.Helpers;
     using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Domain.Interfaces.Logging;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using StudentInfoSys.Domain.Interfaces.Services;
     using StudentInfoSys.Infrastructure;
+    using StudentInfoSys.Infrastructure.Logging;
     using StudentInfoSys.Infrastructure.Repositories;
     using StudentInfoSys.Service;
 
@@ -64,6 +66,7 @@
             #endregion
 
             #region  Services
+            services.AddScoped(typeof(IBaseLogger<>), typeof(Logger<>));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();

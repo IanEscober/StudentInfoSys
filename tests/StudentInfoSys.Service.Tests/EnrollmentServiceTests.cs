@@ -3,6 +3,7 @@
     using System.Threading.Tasks;
     using Moq;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Interfaces.Logging;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using Xunit;
 
@@ -11,12 +12,14 @@
         [Fact]
         public async Task AddCourseToStudentAsync_ShouldReturnEnrollment()
         {
-            (int studentId, int courseId) = (1, 1);
+            int studentId = 1;
+            int courseId = 1;
+            var mockLogger = new Mock<IBaseLogger<EnrollmentService>>();
             var mockRepository = new Mock<IEnrollmentRepository>();
             mockRepository.Setup(repo => repo.AddEnrollmentAsync(It.IsAny<Enrollment>()))
                 .ReturnsAsync(new Enrollment { StudentId = studentId, CourseId = courseId })
                 .Verifiable();
-            var service = new EnrollmentService(mockRepository.Object);
+            var service = new EnrollmentService(mockRepository.Object, mockLogger.Object);
 
             var result = await service.AddCourseToStudentAsync(studentId, courseId);
 
@@ -28,12 +31,14 @@
         [Fact]
         public async Task RemoveCourseFromStudentAsync_ShouldReturn()
         {
-            (int studentId, int courseId) = (1, 1);
+            int studentId = 1;
+            int courseId = 1;
+            var mockLogger = new Mock<IBaseLogger<EnrollmentService>>();
             var mockRepository = new Mock<IEnrollmentRepository>();
             mockRepository.Setup(repo => repo.RemoveEnrollmentAsync(It.IsAny<Enrollment>()))
                 .Returns(Task.CompletedTask)
                 .Verifiable();
-            var service = new EnrollmentService(mockRepository.Object);
+            var service = new EnrollmentService(mockRepository.Object, mockLogger.Object);
 
             async Task act() => await service.RemoveCourseFromStudentAsync(studentId, courseId);
 
