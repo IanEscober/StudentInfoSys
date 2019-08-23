@@ -1,4 +1,4 @@
-﻿namespace StudentInfoSys.Application.Models
+﻿namespace StudentInfoSys.Application.Models.Dtos
 {
     public class UserDto
     {

@@ -1,7 +1,6 @@
-﻿namespace StudentInfoSys.Application.Models
+﻿namespace StudentInfoSys.Application.Models.Dtos
 {
     using System.Collections.Generic;
-    using StudentInfoSys.Domain.Entities;
 
     public class StudentDto
     {

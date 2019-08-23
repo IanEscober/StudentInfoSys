@@ -2,7 +2,7 @@
 {
     using AutoMapper;
     using StudentInfoSys.Domain.Entities;
-    using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
     using System.Linq;
 
     public class StudentProfile : Profile

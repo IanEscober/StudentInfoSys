@@ -33,7 +33,7 @@
             try
             {
                 var result = await this.studentRepository.AddStudentAsync(newStudent);
-                this.baseLogger.LogInfo($"Added {result.User.Firstname} to students");
+                this.baseLogger.LogInfo($"Added {student.User.Firstname} to students");
                 return result;
             }
             catch
@@ -60,7 +60,6 @@
                 throw new Exception("Cannot parse header");
             }
             
-
             var student = await this.studentRepository
                 .GetStudentsAsync(s => s.User.Email == email && s.User.Password == password);
 
@@ -99,7 +98,6 @@
             {
                 throw new Exception("Cannot generate token");
             }
-            
         }
     }
 }

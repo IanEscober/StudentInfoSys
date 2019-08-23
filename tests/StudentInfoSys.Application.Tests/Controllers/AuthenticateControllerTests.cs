@@ -6,6 +6,7 @@
     using Moq;
     using StudentInfoSys.Application.Controllers;
     using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
     using StudentInfoSys.Domain.Entities;
     using StudentInfoSys.Domain.Interfaces.Services;
     using Xunit;

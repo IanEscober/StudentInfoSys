@@ -7,7 +7,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Moq;
     using StudentInfoSys.Application.Controllers;
-    using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
     using StudentInfoSys.Domain.Entities;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using Xunit;
@@ -53,7 +53,7 @@
 
             var response = await controller.Get();
 
-            Assert.Null(response);
+            Assert.IsType<NoContentResult>(response.Result);
             mockRepo.Verify();
             mockMapper.Verify();
         }

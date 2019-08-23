@@ -7,13 +7,14 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
     using StudentInfoSys.Domain.Interfaces.Repositories;
 
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public class CoursesController : ControllerBase
     {
         private readonly ICourseRepository courseRepository;
@@ -27,7 +28,7 @@
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<CourseDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)] 
         public async Task<ActionResult<IEnumerable<CourseDto>>> Get()
         {
             var courses = await this.courseRepository.GetCoursesAsync();
@@ -38,7 +39,7 @@
                 return this.Ok(coursesDto);
             }
 
-            return null;
+            return this.NoContent();
         }
     }
 }

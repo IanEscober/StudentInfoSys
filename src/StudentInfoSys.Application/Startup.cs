@@ -11,6 +11,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
+    using Swashbuckle.AspNetCore.Swagger;
     using StudentInfoSys.Application.Helpers;
     using StudentInfoSys.Application.Models;
     using StudentInfoSys.Domain.Interfaces.Logging;
@@ -75,6 +76,14 @@
             services.AddScoped<IEnrollmentService, EnrollmentService>();
             #endregion
 
+            #region Swagger
+            services.AddSwaggerGen(swag =>
+            {
+                swag.SwaggerDoc("v1", new Info { Title = "StudentInfoSys API" });
+                swag.AddSecurityDefinition("Basic", new BasicAuthScheme());
+            });
+            #endregion
+
             #region MVC
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             #endregion
@@ -101,6 +110,15 @@
                 .AllowCredentials());
 
             app.UseAuthentication();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(swag =>
+            {
+                swag.SwaggerEndpoint("/swagger/v1/swagger.json", "StudentInfoSys API v1");
+                swag.RoutePrefix = string.Empty;
+                swag.DefaultModelsExpandDepth(0);
+            });
 
             app.UseMvc();
         }

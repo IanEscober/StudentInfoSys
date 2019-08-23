@@ -6,12 +6,14 @@
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
     using StudentInfoSys.Domain.Interfaces.Services;
 
-    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
-    [Route("api/[controller]")]
     [ApiController]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public class AuthenticateController : ControllerBase
     {
         private readonly IStudentService studentService;
@@ -30,7 +32,7 @@
 
         [HttpPost]
         [ProducesResponseType(typeof(AuthorizeDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<AuthorizeDto>> Post()
         {
             var student = await this.studentService.AuthenticateBasicAsync(this.Request?.Headers["Authorization"]);

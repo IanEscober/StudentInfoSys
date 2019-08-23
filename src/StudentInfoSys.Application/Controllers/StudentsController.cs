@@ -7,15 +7,17 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
-    using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
+    using StudentInfoSys.Application.Models.ViewModels;
     using StudentInfoSys.Domain.Entities;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using StudentInfoSys.Domain.Interfaces.Services;
 
     [Authorize]
-    [Route("api/[controller]")]
     [ApiController]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public class StudentsController : ControllerBase
     {
         private readonly IStudentRepository studentRepository;
@@ -37,7 +39,7 @@
 
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get()
         {
             var students = await this.studentRepository.GetStudentsAsync();
@@ -48,12 +50,12 @@
                 return this.Ok(usersDto);
             }
 
-            return null;
+            return this.NoContent();
         }
 
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(StudentDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<StudentDto>> Get(int id)
         {
             var student = await this.studentRepository.GetStudentByIdAsyc(id);
@@ -70,10 +72,10 @@
         [AllowAnonymous]
         [HttpPost]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<UserDto>> Post([FromBody] User user)
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<UserDto>> Post([FromBody] UserViewModel user)
         {
-            var newStudent = await this.studentService.AddStudentAsync(new Student { User = user });
+            var newStudent = await this.studentService.AddStudentAsync(new Student { User = this.mapper.Map<User>(user) });
             var newUser = this.mapper.Map<UserDto>(newStudent);
 
             if (newUser != null)
@@ -82,30 +84,6 @@
             }
 
             return this.BadRequest();
-        }
-
-        [HttpPost("{id}/enrollments")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> Post(int id, [FromBody] Course course)
-        {
-            var enrollment = await this.enrollmentService.AddCourseToStudentAsync(id, course.CourseId);
-
-            if (enrollment != null)
-            {
-                return this.Ok("Successfully Enrolled");
-            }
-
-            return this.BadRequest(new { message = "The student or course does not exists" });
-        }
-
-        [HttpDelete("{id}/enrollments")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult> Delete(int id, [FromBody] Course course)
-        {
-            await this.enrollmentService.RemoveCourseFromStudentAsync(id, course.CourseId);
-
-            return this.Ok("Successfully Removed");
         }
     }
 }

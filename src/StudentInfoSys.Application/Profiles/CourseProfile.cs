@@ -1,7 +1,7 @@
 ﻿namespace StudentInfoSys.Application.Profiles
 {
     using AutoMapper;
-    using StudentInfoSys.Application.Models;
+    using StudentInfoSys.Application.Models.Dtos;
     using StudentInfoSys.Domain.Entities;
 
     public class CourseProfile : Profile
