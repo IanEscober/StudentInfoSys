@@ -28,7 +28,7 @@
             mockMapper.Setup(m => m.Map<IReadOnlyCollection<UserDto>>(It.IsAny<Student[]>()))
                 .Returns(new UserDto[expectedCount])
                 .Verifiable();
-            var controller = new StudentsController(mockRepo.Object, null, null, mockMapper.Object);
+            var controller = new StudentsController(mockRepo.Object, null, mockMapper.Object);
 
             var response = await controller.Get();
 
@@ -51,7 +51,7 @@
             mockMapper.Setup(m => m.Map<IReadOnlyCollection<UserDto>>(It.IsAny<Student[]>()))
                 .Returns(new UserDto[expectedCount])
                 .Verifiable();
-            var controller = new StudentsController(mockRepo.Object, null, null, mockMapper.Object);
+            var controller = new StudentsController(mockRepo.Object, null, mockMapper.Object);
 
             var response = await controller.Get();
 
@@ -72,7 +72,7 @@
             mockMapper.Setup(m => m.Map<StudentDto>(It.IsAny<Student>()))
                 .Returns(new StudentDto() { Id = expectedId })
                 .Verifiable();
-            var controller = new StudentsController(mockRepo.Object, null, null, mockMapper.Object);
+            var controller = new StudentsController(mockRepo.Object, null, mockMapper.Object);
 
             var response = await controller.Get(expectedId);
 
@@ -95,7 +95,7 @@
             mockMapper.Setup(m => m.Map<StudentDto>(It.IsAny<Student>()))
                 .Returns(null as StudentDto)
                 .Verifiable();
-            var controller = new StudentsController(mockRepo.Object, null, null, mockMapper.Object);
+            var controller = new StudentsController(mockRepo.Object, null, mockMapper.Object);
 
             var response = await controller.Get(expectedId);
 
@@ -116,7 +116,7 @@
             mockMapper.Setup(m => m.Map<UserDto>(It.IsAny<Student>()))
                 .Returns(new UserDto { Email = expectedEmail })
                 .Verifiable();
-            var controller = new StudentsController(null, mockService.Object, null, mockMapper.Object);
+            var controller = new StudentsController(null, mockService.Object, mockMapper.Object);
 
             var response = await controller.Post(It.IsAny<UserViewModel>());
 
@@ -139,7 +139,7 @@
             mockMapper.Setup(m => m.Map<UserDto>(It.IsAny<Student>()))
                 .Returns(null as UserDto)
                 .Verifiable();
-            var controller = new StudentsController(null, mockService.Object, null, mockMapper.Object);
+            var controller = new StudentsController(null, mockService.Object, mockMapper.Object);
 
             var response = await controller.Post(It.IsAny<UserViewModel>());
 

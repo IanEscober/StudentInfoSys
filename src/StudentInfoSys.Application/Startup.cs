@@ -1,5 +1,6 @@
 ﻿namespace StudentInfoSys.Application
 {
+    using System.Collections.Generic;
     using System.Text;
     using AutoMapper;
     using Microsoft.AspNetCore.Authentication;
@@ -11,7 +12,6 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
-    using Swashbuckle.AspNetCore.Swagger;
     using StudentInfoSys.Application.Helpers;
     using StudentInfoSys.Application.Models;
     using StudentInfoSys.Domain.Interfaces.Logging;
@@ -21,6 +21,7 @@
     using StudentInfoSys.Infrastructure.Logging;
     using StudentInfoSys.Infrastructure.Repositories;
     using StudentInfoSys.Service;
+    using Swashbuckle.AspNetCore.Swagger;
 
     public class Startup
     {
@@ -81,6 +82,17 @@
             {
                 swag.SwaggerDoc("v1", new Info { Title = "StudentInfoSys API" });
                 swag.AddSecurityDefinition("Basic", new BasicAuthScheme());
+                swag.AddSecurityDefinition("Bearer", new ApiKeyScheme()
+                {
+                    Name = "Authorization",
+                    In = "Header",
+                    Description = "Value: bearer 'jwt-token' Note: Logout of basic auth first"
+                });
+                swag.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    { "Basic", new string[] { } },
+                    { "Bearer", new string[] { } }
+                });
             });
             #endregion
 
@@ -92,6 +104,7 @@
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            #region Exception Page
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -100,27 +113,33 @@
             {
                 app.UseHsts();
             }
+            #endregion
 
+            #region HTTPS
             app.UseHttpsRedirection();
-
             app.UseCors(opt => opt
                 .AllowAnyHeader()
                 .AllowAnyOrigin()
                 .AllowAnyMethod()
                 .AllowCredentials());
+            #endregion
 
+            #region Authentication
             app.UseAuthentication();
+            #endregion
 
+            #region Swagger
             app.UseSwagger();
-
             app.UseSwaggerUI(swag =>
             {
                 swag.SwaggerEndpoint("/swagger/v1/swagger.json", "StudentInfoSys API v1");
                 swag.RoutePrefix = string.Empty;
-                swag.DefaultModelsExpandDepth(0);
             });
+            #endregion
 
+            #region MVC
             app.UseMvc();
+            #endregion
         }
     }
 }

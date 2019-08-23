@@ -22,18 +22,15 @@
     {
         private readonly IStudentRepository studentRepository;
         private readonly IStudentService studentService;
-        private readonly IEnrollmentService enrollmentService;
         private readonly IMapper mapper;
 
         public StudentsController(
             IStudentRepository studentRepository,
             IStudentService studentService,
-            IEnrollmentService enrollmentService,
             IMapper mapper)
         {
             this.studentRepository = studentRepository;
             this.studentService = studentService;
-            this.enrollmentService = enrollmentService;
             this.mapper = mapper;
         }
 
