@@ -17,7 +17,6 @@
     [ApiController]
     [Route("api/[controller]")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public class StudentsController : ControllerBase
     {
         private readonly IStudentRepository studentRepository;
@@ -35,8 +34,9 @@
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get()
         {
             var students = await this.studentRepository.GetStudentsAsync();
@@ -53,6 +53,7 @@
         [HttpGet("{id:int}")]
         [ProducesResponseType(typeof(StudentDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<StudentDto>> Get(int id)
         {
             var student = await this.studentRepository.GetStudentByIdAsyc(id);
@@ -66,8 +67,8 @@
             return this.NotFound();
         }
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<UserDto>> Post([FromBody] UserViewModel user)
