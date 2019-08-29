@@ -5,22 +5,21 @@
     using System.Threading.Tasks;
     using StudentInfoSys.Domain.Entities;
     using StudentInfoSys.Domain.Interfaces.Repositories;
-    using System.Linq.Expressions;
-    using System;
+    using StudentInfoSys.Domain.Interface.Specification;
+    using StudentInfoSys.Domain.Specifications;
 
     public class CourseRepository : GenericRepository<Course>, ICourseRepository
     {
         public CourseRepository(StudentInfoSysDbContext context) : base(context) { }
 
-        public async Task<IReadOnlyCollection<Course>> GetCoursesAsync(Expression<Func<Course,bool>> query = null)
+        public async Task<IReadOnlyCollection<Course>> GetCoursesAsync(ISpecification<Course> specification = null)
         {
-            if(query != null)
+            if(specification is null)
             {
-                var filteredCourses = await this.GetAsync(query);
-                return filteredCourses.ToList().AsReadOnly();
+                specification = new NullSpecification<Course>();
             }
 
-            var courses = await this.GetAsync();
+            var courses = await this.GetAsync(specification);
             return courses.ToList().AsReadOnly();   
         }
     }

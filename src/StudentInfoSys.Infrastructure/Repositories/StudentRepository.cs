@@ -1,30 +1,25 @@
 ﻿namespace StudentInfoSys.Infrastructure.Repositories
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
-    using Microsoft.EntityFrameworkCore;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Interface.Specification;
     using StudentInfoSys.Domain.Interfaces.Repositories;
+    using StudentInfoSys.Domain.Specifications;
 
     public class StudentRepository : GenericRepository<Student>, IStudentRepository
     {
         public StudentRepository(StudentInfoSysDbContext context) : base(context) { }
 
-        public async Task<IReadOnlyCollection<Student>> GetStudentsAsync(Expression<Func<Student, bool>> query = null)
+        public async Task<IReadOnlyCollection<Student>> GetStudentsAsync(ISpecification<Student> specification = null)
         {
-            var students = this.context.Set<Student>()
-                .Include(s => s.User)
-                .Include(s => s.Enrollments)
-                .AsQueryable();
-
-            if(query != null)
+            if (specification is null)
             {
-                students = students.Where(query);
+                specification = new NullSpecification<Student>();
             }
 
+            var students = await this.GetAsync(specification);
             var task = Task.Run(() => students.ToList()); // Due to IAsyncEnumerable == ToListAsync()
 
             var result = await task;
@@ -33,15 +28,9 @@
 
         public async Task<Student> GetStudentByIdAsyc(int id)
         {
-            var task = Task.Run(() => this.context.Set<Student>() // Due to IAsyncEnumerable == SingleAsync()
-                .Include(s => s.User)
-                .Include(s => s.Enrollments)
-                    .ThenInclude(s => s.Course)
-                .Single(s => s.UserId == id));
-
-            var student = await task;
-
-            return student;
+            var student = await this.GetAsync(new StudentFilterSpecification(id)
+                .With(new StudentIncludesSpecification(true)));
+            return student.SingleOrDefault();
         }
 
         public async Task<Student> AddStudentAsync(Student student)

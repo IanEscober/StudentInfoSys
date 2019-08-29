@@ -12,6 +12,7 @@
     using StudentInfoSys.Domain.Interfaces.Logging;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using StudentInfoSys.Domain.Interfaces.Services;
+    using StudentInfoSys.Domain.Specifications;
 
     public class StudentService : IStudentService
     {
@@ -61,7 +62,8 @@
             }
             
             var student = await this.studentRepository
-                .GetStudentsAsync(s => s.User.Email == email && s.User.Password == password);
+                .GetStudentsAsync(new StudentFilterSpecification(email, password)
+                .With(new StudentIncludesSpecification()));
 
             if (student.Any())
             {

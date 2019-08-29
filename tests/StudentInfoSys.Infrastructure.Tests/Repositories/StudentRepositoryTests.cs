@@ -6,6 +6,7 @@
     using Microsoft.EntityFrameworkCore;
     using Moq;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Specifications;
     using StudentInfoSys.Infrastructure.Repositories;
     using Xunit;
 
@@ -46,13 +47,14 @@
         [Fact]
         public async Task GetStudentsAsync_WithQuery_ShouldReturnFiltered()
         {
-            var expectedCount = this.students.Count(s => s.Enrollments.First().CourseId > 1);
+            var expectedCount = 1;
             var mockContext = new Mock<StudentInfoSysDbContext>();
             mockContext.Setup(c => c.Set<Student>())
                 .Returns(this.mockSet.Object);
             var repository = new StudentRepository(mockContext.Object);
+            var spec = new StudentFilterSpecification(1);
 
-            var result = await repository.GetStudentsAsync(s => s.Enrollments.First().CourseId > 1);
+            var result = await repository.GetStudentsAsync(spec);
 
             Assert.Equal(expectedCount, result.Count);
         }

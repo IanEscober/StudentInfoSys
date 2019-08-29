@@ -10,6 +10,7 @@
     using StudentInfoSys.Application.Models.Dtos;
     using StudentInfoSys.Application.Models.ViewModels;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Interface.Specification;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using StudentInfoSys.Domain.Interfaces.Services;
     using Xunit;
@@ -21,7 +22,7 @@
         {
             var expectedCount = 2;
             var mockRepo = new Mock<IStudentRepository>();
-            mockRepo.Setup(repo => repo.GetStudentsAsync(null))
+            mockRepo.Setup(repo => repo.GetStudentsAsync(It.IsAny<ISpecification<Student>>()))
                 .ReturnsAsync(new Student[expectedCount])
                 .Verifiable();
             var mockMapper = new Mock<IMapper>();
@@ -44,20 +45,16 @@
         {
             var expectedCount = 0;
             var mockRepo = new Mock<IStudentRepository>();
-            mockRepo.Setup(repo => repo.GetStudentsAsync(null))
+            mockRepo.Setup(repo => repo.GetStudentsAsync(It.IsAny<ISpecification<Student>>()))
                 .ReturnsAsync(new Student[expectedCount])
                 .Verifiable();
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(m => m.Map<IReadOnlyCollection<UserDto>>(It.IsAny<Student[]>()))
-                .Returns(new UserDto[expectedCount])
-                .Verifiable();
             var controller = new StudentsController(mockRepo.Object, null, mockMapper.Object);
 
             var response = await controller.Get();
 
             Assert.IsType<NoContentResult>(response.Result);
             mockRepo.Verify();
-            mockMapper.Verify();
         }
 
         [Fact]
@@ -92,16 +89,12 @@
                 .ReturnsAsync(null as Student)
                 .Verifiable();
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(m => m.Map<StudentDto>(It.IsAny<Student>()))
-                .Returns(null as StudentDto)
-                .Verifiable();
             var controller = new StudentsController(mockRepo.Object, null, mockMapper.Object);
 
             var response = await controller.Get(expectedId);
 
             Assert.IsType<NotFoundResult>(response.Result);
             mockRepo.Verify();
-            mockMapper.Verify();
         }
 
         [Fact]
@@ -136,16 +129,12 @@
                 .ReturnsAsync(null as Student)
                 .Verifiable();
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(m => m.Map<UserDto>(It.IsAny<Student>()))
-                .Returns(null as UserDto)
-                .Verifiable();
             var controller = new StudentsController(null, mockService.Object, mockMapper.Object);
 
             var response = await controller.Post(It.IsAny<UserViewModel>());
 
             Assert.IsType<BadRequestResult>(response.Result);
             mockService.Verify();
-            mockMapper.Verify();
         }
     }
 }

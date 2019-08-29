@@ -46,16 +46,12 @@
                 .ReturnsAsync(new Course[expectedCount])
                 .Verifiable();
             var mockMapper = new Mock<IMapper>();
-            mockMapper.Setup(m => m.Map<IReadOnlyCollection<CourseDto>>(It.IsAny<Course[]>()))
-                .Returns(new CourseDto[expectedCount])
-                .Verifiable();
             var controller = new CoursesController(mockRepo.Object, mockMapper.Object);
 
             var response = await controller.Get();
 
             Assert.IsType<NoContentResult>(response.Result);
             mockRepo.Verify();
-            mockMapper.Verify();
         }
     }
 }

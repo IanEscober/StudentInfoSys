@@ -6,6 +6,7 @@ namespace StudentInfoSys.Infrastructure.Tests.Repositories
     using Microsoft.EntityFrameworkCore;
     using Moq;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Specifications;
     using StudentInfoSys.Infrastructure.Repositories;
     using Xunit;
 
@@ -47,13 +48,14 @@ namespace StudentInfoSys.Infrastructure.Tests.Repositories
         [Fact]
         public async Task GetCoursesAsync_WithQuery_ShouldReturnFiltered()
         {
-            var expectedCount = this.courses.Count(c => c.CourseId > 1);
+            var expectedCount = 1;
             var mockContext = new Mock<StudentInfoSysDbContext>();
             mockContext.Setup(c => c.Set<Course>())
                 .Returns(this.mockSet.Object);
             var repository = new CourseRepository(mockContext.Object);
+            var spec = new CourseFilterSpecification(1);
 
-            var result = await repository.GetCoursesAsync(c => c.CourseId > 1);
+            var result = await repository.GetCoursesAsync(spec);
 
             Assert.Equal(expectedCount, result.Count);
         }

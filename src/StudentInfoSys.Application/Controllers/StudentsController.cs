@@ -12,6 +12,7 @@
     using StudentInfoSys.Domain.Entities;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using StudentInfoSys.Domain.Interfaces.Services;
+    using StudentInfoSys.Domain.Specifications;
 
     [Authorize]
     [ApiController]
@@ -39,11 +40,11 @@
         [ProducesResponseType(typeof(IEnumerable<UserDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<UserDto>>> Get()
         {
-            var students = await this.studentRepository.GetStudentsAsync();
-            var usersDto = this.mapper.Map<IReadOnlyCollection<UserDto>>(students);
-
-            if (usersDto.Any())
+            var students = await this.studentRepository.GetStudentsAsync(new StudentIncludesSpecification());
+            
+            if (students.Any())
             {
+                var usersDto = this.mapper.Map<IReadOnlyCollection<UserDto>>(students);
                 return this.Ok(usersDto);
             }
 
@@ -57,10 +58,10 @@
         public async Task<ActionResult<StudentDto>> Get(int id)
         {
             var student = await this.studentRepository.GetStudentByIdAsyc(id);
-            var studentDto = this.mapper.Map<StudentDto>(student);
 
-            if (studentDto != null)
+            if (student != null)
             {
+                var studentDto = this.mapper.Map<StudentDto>(student);
                 return this.Ok(studentDto);
             }
 
@@ -74,10 +75,10 @@
         public async Task<ActionResult<UserDto>> Post([FromBody] UserViewModel user)
         {
             var newStudent = await this.studentService.AddStudentAsync(new Student { User = this.mapper.Map<User>(user) });
-            var newUser = this.mapper.Map<UserDto>(newStudent);
-
-            if (newUser != null)
+            
+            if (newStudent != null)
             {
+                var newUser = this.mapper.Map<UserDto>(newStudent);
                 return this.Ok(newUser);
             }
 

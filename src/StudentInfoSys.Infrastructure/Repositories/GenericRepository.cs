@@ -1,10 +1,9 @@
 ﻿namespace StudentInfoSys.Infrastructure.Repositories
 {
-    using System;
     using System.Linq;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
+    using StudentInfoSys.Domain.Interface.Specification;
     using StudentInfoSys.Domain.Interfaces.Repositories;
 
     public class GenericRepository<T> : IAsyncRepository<T> where T : class
@@ -21,16 +20,17 @@
             return this.context.Set<T>().FindAsync(id);
         }
 
-        public Task<IQueryable<T>> GetAsync(Expression<Func<T, bool>> query = null)
+        public Task<IQueryable<T>> GetAsync(ISpecification<T> specification)
         {
-            var task = this.context.Set<T>();
-            
-            if (query != null)
-            {
-                return Task.Run(() => task.Where(query));
-            }
+            var initialIncludes = specification.Includes
+                .Aggregate(this.context.Set<T>().AsQueryable(),
+                    (current, include) => current.Include(include));
 
-            return Task.Run(() => task.AsQueryable());
+            var additionalIncludes = specification.IncludesString
+                .Aggregate(initialIncludes,
+                    (current, include) => current.Include(include));
+
+            return Task.Run(() => additionalIncludes.Where(specification.Filter));
         }
 
         public async Task<T> AddAsync(T entity)

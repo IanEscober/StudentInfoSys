@@ -1,10 +1,9 @@
 namespace StudentInfoSys.Service.Tests
 {
-    using System;
-    using System.Linq.Expressions;
     using System.Threading.Tasks;
     using Moq;
     using StudentInfoSys.Domain.Entities;
+    using StudentInfoSys.Domain.Interface.Specification;
     using StudentInfoSys.Domain.Interfaces.Logging;
     using StudentInfoSys.Domain.Interfaces.Repositories;
     using Xunit;
@@ -36,7 +35,7 @@ namespace StudentInfoSys.Service.Tests
             var expectedStudent = new Student { StudentId = 1 };
             var mockLogger = new Mock<IBaseLogger<StudentService>>();
             var mockRepository = new Mock<IStudentRepository>();
-            mockRepository.Setup(repo => repo.GetStudentsAsync(It.IsAny<Expression<Func<Student, bool>>>()))
+            mockRepository.Setup(repo => repo.GetStudentsAsync(It.IsAny<ISpecification<Student>>()))
                 .ReturnsAsync(new Student[] { expectedStudent })
                 .Verifiable();
             var service = new StudentService(mockRepository.Object, mockLogger.Object);

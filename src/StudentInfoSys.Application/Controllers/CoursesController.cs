@@ -32,10 +32,10 @@
         public async Task<ActionResult<IEnumerable<CourseDto>>> Get()
         {
             var courses = await this.courseRepository.GetCoursesAsync();
-            var coursesDto = this.mapper.Map<IReadOnlyCollection<CourseDto>>(courses);
 
-            if (coursesDto.Any())
+            if (courses.Any())
             {
+                var coursesDto = this.mapper.Map<IReadOnlyCollection<CourseDto>>(courses);
                 return this.Ok(coursesDto);
             }
 
